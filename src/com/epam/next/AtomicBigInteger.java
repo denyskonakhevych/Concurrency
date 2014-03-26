@@ -22,4 +22,19 @@ public class AtomicBigInteger {
 		
 		return newValue;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AtomicBigInteger that = (AtomicBigInteger) obj;
+        if(!value.get().equals(that.value.get())) {
+        	return false;
+        }
+        return true;
+	}
+	
+	
 }

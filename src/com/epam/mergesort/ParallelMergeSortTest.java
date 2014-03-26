@@ -18,27 +18,27 @@ public class ParallelMergeSortTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void test1() {
+	public void testIllegalArgumentNull() {
 		isSorted(null);
 	}
 	
 	@Test
-	public void test2() {
+	public void testSingleElementIsSorted() {
 		assertTrue(isSorted(new int[] {0}));
 	}
 
 	@Test
-	public void test3() {
+	public void testArraysIsSorted() {
 		assertTrue(isSorted(new int[] {-2, -1, 0, 1, 2}));
 	}
 	
 	@Test
-	public void test4() {
+	public void testArraysIsNotSorted() {
 		assertFalse(isSorted(new int[] {-2, 0, -1, 1, 2}));
 	}
 	
 	@Test
-	public void test5() throws InterruptedException {
+	public void testSortArray() throws InterruptedException {
 		int[] arr = getLongArray();
 		ParallelMergeSort pms = new ParallelMergeSort(arr);
 		pms.sort();
@@ -46,17 +46,18 @@ public class ParallelMergeSortTest {
 	}
 	
 	@Test
-	public void test6() throws InterruptedException {
+	public void testSortArrayAllNoneElementIsMissed() throws InterruptedException {
 		int[] arr = getLongArray();
-		
-		List<int[]> list = new ArrayList<>(Arrays.asList(arr));
+		List<Integer> list = new ArrayList<>(arr.length);
+		for (int i = 0; i < arr.length; i++) {
+			list.add(arr[i]);
+		}
 		ParallelMergeSort pms = new ParallelMergeSort(arr);
 		pms.sort();
-		boolean notFound = false;
 		for (int elem : arr) {
-			list.remove(elem);
+			list.remove((Integer)elem);
 		}
-		assertTrue(isSorted(arr));
+		assertTrue(list.isEmpty());
 	}
 
 	private static boolean isSorted(int[] arr) {

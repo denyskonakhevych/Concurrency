@@ -1,12 +1,10 @@
 package com.epam.next;
+
 import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 
 public class MAIN {
 
@@ -26,7 +24,6 @@ public class MAIN {
 				public void run() {
 					for (int j = 0; j < MAX; j++) {
 						numbers.add(inc.next());
-						//Thread.yield();
 					}
 				}
 			});
