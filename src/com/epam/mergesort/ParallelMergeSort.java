@@ -1,27 +1,53 @@
 package com.epam.mergesort;
 
-import java.util.Arrays;
-
-public class ParallelMergeSort {
-
-	public static void main(String... args) {
-		int[] arr = new int[] {1, 15, 16, 2, -1, 19, 3, 7, 15, 9, -3};
-		ParallelMergeSort pms = new ParallelMergeSort();
-        pms.sort(arr);
-        System.out.println(Arrays.toString(arr));
+public class ParallelMergeSort implements Runnable {
+	
+	private int[] array;
+	private int from;
+	private int to;
+	
+	public ParallelMergeSort(int[] array) {
+		if (array == null) {
+			throw new IllegalArgumentException("Expected array but was: " + array);
+		}
+		this.array = array;
+		this.from = 0;
+		this.to = array.length - 1;
 	}
 	
-	public void sort(int [] a) {
-	    sort(a, 0, a.length - 1);
+	public ParallelMergeSort(int[] array, int from, int to) {
+		this.array = array;
+		this.from = from;
+		this.to = to;
 	}
 	
-	private void sort(int [] a, int lo, int hi) {
-	    if (hi <= lo)
+	@Override
+	public void run() {
+		try {
+			sort(array, from, to);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void sort() throws InterruptedException {
+	    sort(array, from, to);
+	}
+	
+	private void sort(int [] a, int lo, int hi) throws InterruptedException {
+	    if (hi <= lo) {
 	        return;
-	    
+	    }
 	    int mid = lo + (hi - lo) / 2;
-	    sort(a, lo, mid);
-	    sort(a, mid + 1, hi);
+	    
+	    if (mid == lo) {
+	    	sort(a, lo, mid);
+	    } else {
+		    Thread right = new Thread(new ParallelMergeSort(a, mid + 1, hi));
+		    right.start();
+		    sort(a, lo, mid);
+			right.join();
+	    }
 	    merge(a, lo, mid, hi);
 	}
 	
@@ -29,7 +55,6 @@ public class ParallelMergeSort {
 	    int i = lo, j = mid + 1;
 	    int[] aux = new int [a.length];
 	    System.arraycopy(a, 0, aux, 0, a.length);
-	    
 	    for (int k = lo; k <= hi; k++) {
 	        if (i > mid) {
 	        	System.arraycopy(aux, j, a, k, hi - k + 1);
