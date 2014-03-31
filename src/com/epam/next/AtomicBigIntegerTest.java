@@ -14,7 +14,7 @@ public class AtomicBigIntegerTest {
 
 	@Test
 	public void test() {
-		final int MAX = 100;
+		final int MAX = 10;
 		
 		final AtomicBigInteger inc = new AtomicBigInteger();
 		final Set<BigInteger> init = new TreeSet<>();
@@ -41,9 +41,6 @@ public class AtomicBigIntegerTest {
 			}
 		}
 		BigInteger sum = new BigInteger("0");
-		for (BigInteger i : numbers) {
-			sum = sum.add(i);
-		}
 		assertEquals(sum, getSum(2, numbers.size()));
 	}
 	

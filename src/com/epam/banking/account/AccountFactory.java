@@ -1,4 +1,4 @@
-package com.epam.banking;
+package com.epam.banking.account;
 
 public interface AccountFactory {
 	public Account getAccount();

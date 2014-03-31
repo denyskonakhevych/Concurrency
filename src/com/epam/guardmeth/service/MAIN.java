@@ -4,7 +4,7 @@ import com.epam.guardmeth.buffer.CircularBuffer;
 import com.epam.guardmeth.buffer.CircularBufferConcurrency;
 import com.epam.guardmeth.buffer.CircularBufferNonconcurrency;
 
-public class MAIN {
+public class Main {
 
 	public static void main(String[] args) {
 		int N = 10; 

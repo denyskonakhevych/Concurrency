@@ -3,8 +3,6 @@ package com.epam.mergesort;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Before;
@@ -69,7 +67,6 @@ public class ParallelMergeSortTest {
 		}
 		for(int i = 1; i < arr.length; i++) {
 			if(arr[i-1] > arr[i]) {
-				//System.out.println(i-1 + ": " + arr[i-1] + ", " + i + ": " + arr[i]);
 				return false;
 			}
 		}

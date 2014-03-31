@@ -1,13 +1,14 @@
-package com.epam.banking;
+package com.epam.banking.account;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import com.epam.banking.account.exceptions.NotEnoughMoneyException;
 
 public class Account {
 
 	public final int ID;
 	private float balance;
-	public long time;
 	public final Lock lock = new ReentrantLock();
 
 	public int getId() {

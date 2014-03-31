@@ -6,6 +6,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import com.epam.banking.account.Account;
+import com.epam.banking.account.exceptions.AccountAddressTransactionException;
+import com.epam.banking.account.exceptions.NotEnoughMoneyException;
+
 public class Bank {
 
 	private List<Account> accounts = new ArrayList<>();
@@ -32,7 +36,19 @@ public class Bank {
 		accounts.add(account);
 	}
 	
+	public Account getAccount(int id) {
+		for (Account acc : accounts) {
+			if (acc.getId() == id) {
+				return acc;
+			}
+		}
+		return null;
+	}
+	
 	public void transfer(int fromId, int toId, int amount) {
+		if (fromId == toId) {
+			throw new AccountAddressTransactionException("Source and destination account id matches!");
+		}
 		Account from = accounts.get(fromId); 
 		Account to = accounts.get(toId);
 		transfer(from, to, amount);
@@ -54,7 +70,8 @@ public class Bank {
 		return accounts.size();
 	}
 	
-	class Transaction implements Runnable {
+	private class Transaction implements Runnable {
+		
 		private Account from;
 		private Account to;
 		private int amount;
@@ -81,7 +98,7 @@ public class Bank {
 							to.deposit(amount);
 							success = true;
 						} catch(NotEnoughMoneyException ex) {
-							System.out.println(ex.getMessage());
+							//System.out.println(ex.getMessage());
 							return;
 						} finally {
 							second.lock.unlock();
