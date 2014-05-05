@@ -2,8 +2,6 @@ package com.epam.banking;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.epam.banking.account.Account;
@@ -14,10 +12,15 @@ public class Bank {
 
 	private List<Account> accounts = new ArrayList<>();
 	
-	private ExecutorService executor = Executors.newCachedThreadPool();
-	//private ExecutorService executor = Executors.newFixedThreadPool(1000);
+	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public float getTotalSum() {
+		float sum = 0;
+		for (Account acc : accounts) {
+			sum += acc.getBalance();
+		}
+		return sum;
+		/*
 		executor.shutdown();
 		try {
 			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -30,6 +33,7 @@ public class Bank {
 		}
 		executor = Executors.newCachedThreadPool();
 		return sum;
+		*/
 	}
 
 	public void addAccount(Account account) {
@@ -55,7 +59,33 @@ public class Bank {
 	}
 
 	private void transfer(Account from, Account to, int amount) {
-		executor.execute(new Transaction(from, to, amount));
+		//executor.execute(new Transaction(from, to, amount));
+		
+		Account first = (from.ID < to.ID) ? from : to;
+		Account second = (from.ID < to.ID) ? to : from;
+		boolean success = false;
+		while (!success) {
+			try {
+				while (!first.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
+					Thread.yield();
+				}
+				if (second.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
+					try {
+						from.withdraw(amount);
+						to.deposit(amount);
+						success = true;
+					} catch(NotEnoughMoneyException ex) {
+						return;
+					} finally {
+						second.lock.unlock();
+					}
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				first.lock.unlock();
+			}
+		}
 	}
 	
 	public List<String> getAccountsInfo() {
@@ -70,7 +100,7 @@ public class Bank {
 		return accounts.size();
 	}
 	
-	private class Transaction implements Runnable {
+/*	private class Transaction implements Runnable {
 		
 		private Account from;
 		private Account to;
@@ -111,5 +141,5 @@ public class Bank {
 				}
 			}
 		}
-	}
+	}*/
 }

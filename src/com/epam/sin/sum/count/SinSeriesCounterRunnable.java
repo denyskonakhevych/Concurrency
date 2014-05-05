@@ -29,7 +29,7 @@ public class SinSeriesCounterRunnable extends SinSeriesCounter {
 		return totalSum;
 	}
 	
-	private class SeriesCounter implements Runnable {
+	private static class SeriesCounter implements Runnable {
 		private int startBorder; 
 		private int endBorder;
 		private double[] rezults;

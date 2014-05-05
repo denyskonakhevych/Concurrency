@@ -36,7 +36,7 @@ public class SinSeriesCounterCollable extends SinSeriesCounter {
 		return sumOfSeries;
 	}
 	
-	private class SeriesCounter<Double> implements Callable<Double> {
+	private static class SeriesCounter<T extends Double> implements Callable<T> {
 
 		int startBorder; 
 		int endBorder;
@@ -47,12 +47,12 @@ public class SinSeriesCounterCollable extends SinSeriesCounter {
 		}
 
 		@Override
-		public Double call() throws Exception {
+		public T call() throws Exception {
 			double tempSumOfSeries = 0;
 			for (int i = startBorder; i < endBorder; i++) {
 				tempSumOfSeries += sin(i);
 			}
-			return (Double) new java.lang.Double(tempSumOfSeries);
+			return (T) new Double(tempSumOfSeries);
 		}
 	}
 

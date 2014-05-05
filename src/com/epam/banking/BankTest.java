@@ -45,23 +45,50 @@ public class BankTest {
 	
 	@Test
 	public void testBankManyTransfers() {
-		Bank bank = new Bank();
+		final int MAX_INVOKES = 10000;
+		final Bank bank = new Bank();
 		AccountFactory af = new RandomBalanceAccountFactory();
 		for (int i = 0; i < 1000; i++) {
 			bank.addAccount(af.getAccount());
 		}
 		float bankSumBefore = bank.getTotalSum();
-		Random random = new Random();
+		final Random random = new Random();
 		final int ACCOUNT_MAX_NUMBER = bank.getAccountNumber();
-		for (int i = 0; i < 10000; i++) {
-			assert(ACCOUNT_MAX_NUMBER>1);
+		
+		Thread[] threads = new Thread[MAX_INVOKES];
+		for (int i = 0; i < MAX_INVOKES; i++) {
+			assert(ACCOUNT_MAX_NUMBER > 1);
+			
+			threads[i] = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					int from = random.nextInt(ACCOUNT_MAX_NUMBER);
+					int to = random.nextInt(ACCOUNT_MAX_NUMBER);
+					while (from == to) {
+						to = random.nextInt(ACCOUNT_MAX_NUMBER);
+					}
+					int ammount = random.nextInt(1000);
+					bank.transfer(from, to, ammount);
+				}
+			});
+			threads[i].start();
+			/*
 			int from = random.nextInt(ACCOUNT_MAX_NUMBER);
 			int to = random.nextInt(ACCOUNT_MAX_NUMBER);
 			while (from == to) {
 				to = random.nextInt(ACCOUNT_MAX_NUMBER);
 			}
 			int ammount = random.nextInt(1000);
+			
 			bank.transfer(from, to, ammount);
+			*/
+		}
+		for(Thread thread : threads) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		float bankSumAfter = bank.getTotalSum();
 		assertEquals(0, bankSumBefore - bankSumAfter, 0.0001);

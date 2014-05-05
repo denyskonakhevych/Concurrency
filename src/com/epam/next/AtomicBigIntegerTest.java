@@ -41,6 +41,9 @@ public class AtomicBigIntegerTest {
 			}
 		}
 		BigInteger sum = new BigInteger("0");
+		for (BigInteger bInt : numbers) {
+			sum = sum.add(bInt);
+		}
 		assertEquals(sum, getSum(2, numbers.size()));
 	}
 	

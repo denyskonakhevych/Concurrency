@@ -65,7 +65,7 @@ public class CircularBufferNonconcurrency<T> implements CircularBuffer<T> {
 		return size == MAX_SIZE;
 	}
 	
-	private class Entry<E> {
+	private static class Entry<E> {
 		private E item;
 		private Entry<E> next;
 		

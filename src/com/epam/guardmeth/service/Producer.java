@@ -17,10 +17,10 @@ public class Producer implements Runnable {
 	public void run() {
 		Random random = new Random();
 		for (int i = 0; i < 100; i++) {
-			//int numb = getNext();
-			//buffer.put(i);
 			try {
-				buffer.put(i);
+				//int numb = getNext();
+				buffer.put(getNext());
+				//buffer.put(i);
 				Thread.sleep(random.nextInt(10));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -28,7 +28,7 @@ public class Producer implements Runnable {
 		}
 	}
 	
-	private synchronized int getNext() {
+	private static synchronized int getNext() {
 		return ++counter;
 	}
 }

@@ -15,10 +15,7 @@ public abstract class SinSeriesCounter {
 			System.out.println("Illegal number of threads: " + numberOfThreads);
 			throw new IllegalArgumentException("Illegal number of threads: " + numberOfThreads);
 		}
-		//System.out.println(lengthOfSequence);
-		//System.out.println(numberOfThreads);
 		if (lengthOfSequence * 2 + 1 < numberOfThreads) {
-			//System.out.println(lengthOfSequence * 2 + 1);
 			throw new IllegalArgumentException("Number of threads is to big for current sequence. Maximum alloved number of threads: " + lengthOfSequence * 2 + 1);		
 		}
 		this.lengthOfSequence = lengthOfSequence;
