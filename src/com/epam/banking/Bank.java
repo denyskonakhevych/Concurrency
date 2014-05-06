@@ -6,13 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.epam.banking.account.Account;
 import com.epam.banking.account.exceptions.AccountAddressTransactionException;
-import com.epam.banking.account.exceptions.NotEnoughMoneyException;
+import com.epam.banking.account.exceptions.AccountTemporaryUnavaliable;
 
 public class Bank {
 
 	private List<Account> accounts = new ArrayList<>();
-	
-	//private ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public float getTotalSum() {
 		float sum = 0;
@@ -20,20 +18,6 @@ public class Bank {
 			sum += acc.getBalance();
 		}
 		return sum;
-		/*
-		executor.shutdown();
-		try {
-			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		} catch (InterruptedException e) {
-			//NOP
-		}
-		float sum = 0;
-		for (Account acc : accounts) {
-			sum += acc.getBalance();
-		}
-		executor = Executors.newCachedThreadPool();
-		return sum;
-		*/
 	}
 
 	public void addAccount(Account account) {
@@ -55,37 +39,46 @@ public class Bank {
 		}
 		Account from = accounts.get(fromId); 
 		Account to = accounts.get(toId);
-		transfer(from, to, amount);
+		try {
+			for (int i = 0; i < 3; i++) {
+				if (transfer(from, to, amount)) {
+					return;
+				} else {
+					Thread.sleep(1000);
+				}
+			}
+			throw new AccountTemporaryUnavaliable("Account temporary unavaliable");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		throw new AccountTemporaryUnavaliable("Account temporary unavaliable");
 	}
 
-	private void transfer(Account from, Account to, int amount) {
-		//executor.execute(new Transaction(from, to, amount));
+	private boolean transfer(Account from, Account to, int amount) {
 		
 		Account first = (from.ID < to.ID) ? from : to;
 		Account second = (from.ID < to.ID) ? to : from;
-		boolean success = false;
-		while (!success) {
-			try {
-				while (!first.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
-					Thread.yield();
-				}
-				if (second.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
-					try {
-						from.withdraw(amount);
-						to.deposit(amount);
-						success = true;
-					} catch(NotEnoughMoneyException ex) {
-						return;
-					} finally {
-						second.lock.unlock();
+		try {
+			if(first.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
+				try {
+					if (second.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
+						try {
+							from.withdraw(amount);
+							to.deposit(amount);
+							Thread.sleep(100);
+							return true;
+						} finally {
+							second.lock.unlock();
+						}
 					}
+				} finally {
+					first.lock.unlock();
 				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} finally {
-				first.lock.unlock();
 			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
+		return false;
 	}
 	
 	public List<String> getAccountsInfo() {
@@ -99,47 +92,4 @@ public class Bank {
 	public int getAccountNumber() {
 		return accounts.size();
 	}
-	
-/*	private class Transaction implements Runnable {
-		
-		private Account from;
-		private Account to;
-		private int amount;
-
-		public Transaction(Account from, Account to, int amount) {
-			this.from = from;
-			this.to = to;
-			this.amount = amount;
-		}
-
-		@Override
-		public void run() {
-			Account first = (from.ID < to.ID) ? from : to;
-			Account second = (from.ID < to.ID) ? to : from;
-			boolean success = false;
-			while (!success) {
-				try {
-					while (!first.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
-						Thread.yield();
-					}
-					if (second.lock.tryLock(10, TimeUnit.MILLISECONDS)) {
-						try {
-							from.withdraw(amount);
-							to.deposit(amount);
-							success = true;
-						} catch(NotEnoughMoneyException ex) {
-							//System.out.println(ex.getMessage());
-							return;
-						} finally {
-							second.lock.unlock();
-						}
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} finally {
-					first.lock.unlock();
-				}
-			}
-		}
-	}*/
 }

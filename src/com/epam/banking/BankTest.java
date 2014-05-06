@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.epam.banking.account.Account;
 import com.epam.banking.account.AccountFactory;
 import com.epam.banking.account.RandomBalanceAccountFactory;
+import com.epam.banking.account.exceptions.BankingException;
 
 public class BankTest {
 
@@ -45,15 +46,16 @@ public class BankTest {
 	
 	@Test
 	public void testBankManyTransfers() {
-		final int MAX_INVOKES = 10000;
+		final int MAX_INVOKES = 5000;
+		final int ACCOUNT_MAX_NUMBER = 1000;
+		
 		final Bank bank = new Bank();
 		AccountFactory af = new RandomBalanceAccountFactory();
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < ACCOUNT_MAX_NUMBER; i++) {
 			bank.addAccount(af.getAccount());
 		}
 		float bankSumBefore = bank.getTotalSum();
 		final Random random = new Random();
-		final int ACCOUNT_MAX_NUMBER = bank.getAccountNumber();
 		
 		Thread[] threads = new Thread[MAX_INVOKES];
 		for (int i = 0; i < MAX_INVOKES; i++) {
@@ -67,21 +69,15 @@ public class BankTest {
 					while (from == to) {
 						to = random.nextInt(ACCOUNT_MAX_NUMBER);
 					}
-					int ammount = random.nextInt(1000);
-					bank.transfer(from, to, ammount);
+					int ammount = random.nextInt(100);
+					try {
+						bank.transfer(from, to, ammount);
+					} catch(BankingException ex) {
+						System.out.println(ex.getMessage());
+					}
 				}
 			});
 			threads[i].start();
-			/*
-			int from = random.nextInt(ACCOUNT_MAX_NUMBER);
-			int to = random.nextInt(ACCOUNT_MAX_NUMBER);
-			while (from == to) {
-				to = random.nextInt(ACCOUNT_MAX_NUMBER);
-			}
-			int ammount = random.nextInt(1000);
-			
-			bank.transfer(from, to, ammount);
-			*/
 		}
 		for(Thread thread : threads) {
 			try {
